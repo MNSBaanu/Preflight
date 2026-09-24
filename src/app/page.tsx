@@ -1,11 +1,14 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import MermaidDiagram from "@/components/MermaidDiagram";
 
 type PlanResult = {
   plan: string[];
   structure: { path: string; purpose: string }[];
   decisions: { topic: string; choice: string; reasoning: string }[];
+  activityDiagram: string;
+  sequenceDiagram: string;
 };
 
 function generateMockPlan(description: string): PlanResult {
@@ -34,6 +37,23 @@ function generateMockPlan(description: string): PlanResult {
         reasoning: "Matches the three things Preflight promises in the README, kept as separate, scannable lists rather than one long document.",
       },
     ],
+    activityDiagram: `flowchart TD
+    A[User describes what to build] --> B[Break request into steps]
+    B --> C[Draft file/module structure]
+    C --> D[Surface key decisions]
+    D --> E{User agrees with plan?}
+    E -- No --> F[Revise plan]
+    F --> D
+    E -- Yes --> G[Hand off to editor]`,
+    sequenceDiagram: `sequenceDiagram
+    participant U as User
+    participant P as Preflight
+    U->>P: Describe what to build
+    P->>P: Generate plan, structure, decisions
+    P-->>U: Show plan for review
+    U->>P: Revise or approve
+    P-->>U: Final plan
+    U->>Editor: Carry plan into the IDE`,
   };
 }
 
@@ -105,6 +125,16 @@ export default function Home() {
                   </li>
                 ))}
               </ul>
+            </section>
+
+            <section className="flex flex-col gap-3">
+              <h2 className="text-xl font-semibold text-black dark:text-zinc-50">Activity Diagram</h2>
+              <MermaidDiagram chart={result.activityDiagram} />
+            </section>
+
+            <section className="flex flex-col gap-3">
+              <h2 className="text-xl font-semibold text-black dark:text-zinc-50">Sequence Diagram</h2>
+              <MermaidDiagram chart={result.sequenceDiagram} />
             </section>
 
             <section className="flex flex-col gap-3">
